@@ -1,0 +1,83 @@
+# ---------------------------------------------------------------------------
+# Secrets. Nothing in this block may ever be committed.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+secrets/
+infra/caddy/data/
+infra/caddy/config/
+
+# ---------------------------------------------------------------------------
+# Cryptographic material. Private keys must never leave the device.
+# ---------------------------------------------------------------------------
+*.identity
+*.olm
+*.vodozemac
+pickle/
+device-store/
+
+# ---------------------------------------------------------------------------
+# Node / server
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.nyc_output/
+npm-debug.log*
+pnpm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Flutter / Dart client
+# ---------------------------------------------------------------------------
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/build/
+client/ios/Pods/
+client/ios/.symlinks/
+client/macos/Pods/
+client/android/.gradle/
+client/android/local.properties
+client/linux/flutter/ephemeral/
+client/windows/flutter/ephemeral/
+client/macos/Flutter/ephemeral/
+*.iml
+
+# ---------------------------------------------------------------------------
+# Local databases and dumps (may contain ciphertext + metadata)
+# ---------------------------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+pgdata/
+redisdata/
+
+# ---------------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Local scratch space — prototypes, throwaway experiments, design explorations
+# ---------------------------------------------------------------------------
+Demo-testing/
+
+# ---------------------------------------------------------------------------
+# A literal "~" directory: a shell path that did not expand, so a clone landed
+# inside the repository instead of in the home directory. Not part of Bond,
+# and it carries its own .git. Ignored rather than deleted - it is somebody's
+# data, just in the wrong place.
+# ---------------------------------------------------------------------------
+client/~/

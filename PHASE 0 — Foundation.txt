@@ -1,0 +1,70 @@
+NOTE: this file is a point-in-time snapshot and goes stale.
+The live checklist is docs/roadmap.md — trust that one.
+
+PHASE 0 — Foundation                                        [x] COMPLETE
+├── [x] 1. Repository structure, .gitignore, .env.example
+├── [x] 2. Architecture docs (all 9 flows)
+├── [x] 3. Threat model (9 attackers, 16 threats, 7 residual risks)
+├── [x] Server-visibility inventory
+└── [x] Decision log
+
+PHASE 1 — Secure 1-to-1 text messenger            [~] 16 of 20 steps
+│
+├── 1.1 Cryptography                                        [x]
+│   ├── [x] Signal Protocol selected, pinned, licence reviewed
+│   ├── [x] Alternatives rejected with documented reasons
+│   ├── [x] VALIDATED against real libsignal
+│   ├── [x] Ratchet survives a real process restart  ← gap now closed
+│   └── [ ] 1 gap left: build on a mobile target (needs Android SDK/macOS)
+│
+├── 1.2 Backend data layer                                  [x]
+│   ├── [x] 12 tables live on PostgreSQL 18, zero forbidden columns
+│   ├── [x] Constraints proven to REJECT bad data (5/5)
+│   └── [x] Migration runner + Docker dev stack
+│
+├── 1.3 Backend authentication (step 5)                     [x]
+│   └── [x] register / login / refresh+rotation / logout / health
+│
+├── 1.4 Backend remaining (steps 6–13)                      [x]
+│   └── [x] devices · invitations · prekeys · contacts · envelope
+│           · message API · WebSocket delivery · offline queue
+│
+├── 1.5 Flutter client (steps 14–16)                        [x]
+│   ├── [x] Crypto service: own identity store, per-address locking,
+│   │       durable writes — all three silent-failure modes defended
+│   ├── [x] Secure storage (DPAPI, own test suite) + encrypted local DB
+│   ├── [x] Networking: REST + WebSocket, reconnect with backoff
+│   ├── [x] UI: auth, device setup, invite/accept, contacts,
+│   │       verification, conversation, devices, security info
+│   └── [x] Device revocation (client side)
+│
+├── 1.6 MVP VERTICAL SLICE                                  [x] PASSING
+│   └── [x] register → invite → accept → verify → send → decrypt
+│           → receipts → offline across a RESTART → revocation,
+│           against a live server with nothing stubbed
+│
+├── 1.7 Hardening (steps 17–19)                             [~] ← WHERE WORK IS
+│   ├── [x] 98 tests green (43 client + 55 server)
+│   ├── [ ] Security suite: SQL injection, rate-limit bypass,
+│   │       malformed protocol messages, token tampering
+│   ├── [ ] 6 threat-model scenarios as named executable tests
+│   ├── [ ] Threat-model review against the built system
+│   └── [ ] Dependency audit + log sweep for secrets
+│
+└── 1.8 PHASE 1 DONE (step 20)                              [ ]
+    ├── [x] 12 of 12 functional done-criteria pass
+    └── [~] 8 of 10 security criteria; TLS-in-production unproven,
+            log sweep not done, security suite incomplete
+
+OPEN CHORES
+├── [ ] NOTHING IS COMMITTED — main still has zero commits
+├── [ ] Windows Developer Mode needed to BUILD the app (not to test it)
+├── [ ] Invitation expiry sweep + message retention sweep are
+│       implemented but never scheduled (no timer or cron)
+└── [ ] Retention windows still placeholders · O2 undecided
+
+PHASE 2 — Encrypted attachments                             [ ]
+PHASE 3 — Multi-device + groups                             [ ]
+PHASE 4 — Voice/video                                       [ ]
+DEFERRED — sealed sender · push · disappearing messages
+           · metadata privacy · web client (blocked upstream)
