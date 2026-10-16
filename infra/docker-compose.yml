@@ -1,0 +1,59 @@
+# Development stack. NOT a production deployment.
+#
+# Security note: PostgreSQL and Redis are bound to 127.0.0.1 only. They must
+# never be reachable from the public internet, in development or production.
+# See docs/deployment.md.
+
+name: privatemessenger
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: privatemessenger
+      POSTGRES_USER: messenger
+      # Development only. Production secrets come from the environment,
+      # never from a compose file committed to git.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    ports:
+      # Host port defaults to 5433, not 5432: a developer machine may already
+      # run a local PostgreSQL on the default port, and silently colliding with
+      # it is worse than an unusual port number.
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      # Mounted at /var/lib/postgresql, NOT /var/lib/postgresql/data.
+      # From postgres:18 the image stores data in a major-version-specific
+      # subdirectory so that `pg_upgrade --link` works without crossing a mount
+      # boundary, and it refuses to start if it finds data at the old path.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U messenger -d privatemessenger"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    # No persistence: Redis holds only presence, connection registry and
+    # rate-limit counters. None of it is durable state, and not persisting it
+    # means a stolen disk yields nothing.
+    command: >
+      redis-server
+      --save ""
+      --appendonly no
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+    driver: local
