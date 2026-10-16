@@ -1,0 +1,71 @@
+name: bond
+description: "Invite-only, end-to-end encrypted 1-to-1 messenger. Phase 1 client."
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --------------------------------------------------------------------------
+  # Cryptography. PINNED EXACTLY, not a caret range.
+  #
+  # The Rust core is Signal's own reviewed implementation, but these Dart
+  # bindings come from an unverified pub.dev publisher. An automatic minor bump
+  # would change code sitting directly in the crypto path, so upgrading this is
+  # a security-relevant review, not a routine dependency update.
+  # See docs/crypto-design.md limitation 1.
+  # --------------------------------------------------------------------------
+  libsignal: 7.3.1
+
+  # --------------------------------------------------------------------------
+  # Encrypted local database.
+  #
+  # sqlite3 3.x builds the SQLCipher variant via the hook below. The old
+  # sqlcipher_flutter_libs package is EOL and does nothing since 0.7.0.
+  #
+  # WARNING, and the reason EncryptedDatabase asserts at startup: `PRAGMA key`
+  # on a build WITHOUT SQLCipher fails SILENTLY and leaves a plaintext
+  # database. Nothing surfaces an error. The cipher pragma must be probed.
+  # --------------------------------------------------------------------------
+  sqlite3: ^3.0.0
+
+  # Platform paths for the database location.
+  path: ^1.9.0
+  path_provider: ^2.1.5
+
+  # Utf16/calloc helpers for the Win32 DPAPI binding in
+  # services/storage/dpapi_secure_key_store.dart.
+  ffi: ^2.1.3
+
+  http: ^1.5.0
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+# ---------------------------------------------------------------------------
+# Build the SQLCipher variant of sqlite3 rather than plain SQLite.
+# Without this, the database is unencrypted and `PRAGMA key` is a no-op.
+# ---------------------------------------------------------------------------
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlcipher
+
+flutter:
+  uses-material-design: true
+
+  # Logo artwork. Generated assets, not source — regenerate from brand/ and
+  # copy, rather than editing these. PNG rather than SVG so the app takes no
+  # extra dependency to draw its own logo; the sources are far larger than any
+  # on-screen size, so downscaling is all that happens.
+  assets:
+    - assets/brand/
